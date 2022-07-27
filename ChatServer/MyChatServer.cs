@@ -16,9 +16,10 @@ public class MyChatServer : IDisposable
     }
     
     
-    public void StartInfinite()
+    public Task StartInfinite(CancellationToken cancellationToken = default)
     {
-        
+        // will add Task.Run() will logic later
+        return Task.CompletedTask;
     }
 
     public void Dispose()
