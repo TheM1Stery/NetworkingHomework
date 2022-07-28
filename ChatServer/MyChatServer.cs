@@ -10,13 +10,13 @@ public class MyChatServer : IDisposable
     private readonly EndPoint _endPoint;
     private readonly ConcurrentDictionary<int, Socket> _clients;
     private int _clientCount;
-
+    
     public event Action? Disconnected;
     
-    public MyChatServer(Socket server, IPAddress address)
+    public MyChatServer(string ipAddress, int port)
     {
-        _server = server;
-        _endPoint = new IPEndPoint(address, 27001);
+        _server = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.IP);
+        _endPoint = new IPEndPoint(IPAddress.Parse(ipAddress), port);
         _clients = new ConcurrentDictionary<int, Socket>();
     }
     
@@ -35,7 +35,7 @@ public class MyChatServer : IDisposable
                     cancellationToken.ThrowIfCancellationRequested();
                     var socket = await _server.AcceptAsync(cancellationToken);
                     concurrentQueue.Enqueue(socket);
-                    _clients.TryAdd(_clientCount, socket);
+                    _clients.TryAdd(_clientCount++, socket);
                     _ = Task.Run( async () =>
                     {
                         if (!concurrentQueue.TryDequeue(out var currentClient))
@@ -48,7 +48,7 @@ public class MyChatServer : IDisposable
                             while (true)
                             {
                                 cancellationToken.ThrowIfCancellationRequested();
-                                await currentClient!.ReceiveAsync(buffer, SocketFlags.None);
+                                await currentClient.ReceiveAsync(buffer, SocketFlags.None);
                                 foreach (var (key, client) in _clients.ToList())
                                 {
                                     if (client.LocalEndPoint == null)
@@ -57,9 +57,10 @@ public class MyChatServer : IDisposable
                                     {
                                         socket.SendTo(buffer, SocketFlags.None, client.LocalEndPoint);
                                     }
-                                    catch (Exception)
+                                    catch (Exception e) when(e is SocketException or ObjectDisposedException)
                                     {
-                                        _clients.Remove(key, out currentClient);
+                                        _clients.TryRemove(key, out var removedClient);
+                                        removedClient?.Dispose();
                                     }
                                 }
                             }
@@ -69,7 +70,7 @@ public class MyChatServer : IDisposable
                 }
             }, cancellationToken).ConfigureAwait(false);
         }
-        catch (Exception)
+        catch (OperationCanceledException)
         {
             Disconnected?.Invoke();
         }

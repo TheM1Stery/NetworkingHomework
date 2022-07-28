@@ -1,12 +1,9 @@
-﻿using System.Net;
-using System.Net.Sockets;
-using ChatServer;
+﻿using ChatServer;
 
 var resetEvent = new ManualResetEvent(false);
 
 
-using var server = new MyChatServer(new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.IP),
-    IPAddress.Parse("127.0.0.1"));
+using var server = new MyChatServer("127.0.0.1", 27001);
 server.Disconnected += () =>
 {
     Console.WriteLine("Served ended");

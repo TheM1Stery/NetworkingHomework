@@ -7,7 +7,7 @@
              x:Class="ChatClient.Views.ChatView"
              x:DataType="vm:ChatViewModel"
              x:CompileBindings="True">
-    <Grid RowDefinitions="3*, Auto">
+    <Grid RowDefinitions="*, Auto">
         <TextBox Grid.Row="0" VerticalAlignment="Stretch" IsReadOnly="True"/>
         <StackPanel Grid.Row="1" Margin="5">
             <TextBox HorizontalAlignment="Stretch" Watermark="Write message..."/>
