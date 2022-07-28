@@ -1,0 +1,10 @@
+<Application xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="ChatClient.App">
+    <Application.Styles>
+        <FluentTheme Mode="Dark"/>
+    </Application.Styles>
+    <Application.Resources>
+        <Color x:Key="SystemAccentColor">#570861</Color>
+    </Application.Resources>
+</Application>

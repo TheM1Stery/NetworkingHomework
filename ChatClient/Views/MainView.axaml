@@ -1,0 +1,41 @@
+﻿<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+        xmlns:vm="clr-namespace:ChatClient.ViewModels"
+        xmlns:local="clr-namespace:ChatClient"
+        x:Class="ChatClient.Views.MainView"
+        Title="MainView"
+        x:DataType="vm:MainViewModel"
+        x:CompileBindings="True"
+        Background="Transparent"
+        TransparencyLevelHint="AcrylicBlur"
+        ExtendClientAreaToDecorationsHint="True">
+    <Window.DataTemplates>
+        <local:ViewLocator/>
+    </Window.DataTemplates>
+    <Grid RowDefinitions="Auto, *">
+        <ExperimentalAcrylicBorder Grid.Row="0" Grid.RowSpan="2" IsHitTestVisible="False">
+            <ExperimentalAcrylicBorder.Material>
+                <ExperimentalAcrylicMaterial BackgroundSource="Digger"
+                                             TintColor="Black"
+                                             TintOpacity="1"
+                                             MaterialOpacity="0.65"/>
+            </ExperimentalAcrylicBorder.Material>
+        </ExperimentalAcrylicBorder>
+        <ExperimentalAcrylicBorder Grid.Row="0" IsHitTestVisible="False" MinHeight="30">
+            <ExperimentalAcrylicBorder.Material>
+                <ExperimentalAcrylicMaterial BackgroundSource="Digger"
+                                             TintColor="#570861"
+                                             TintOpacity="1"
+                                             MaterialOpacity="0.65"/>
+            </ExperimentalAcrylicBorder.Material>
+            <TextBlock Text="{CompiledBinding Title}" HorizontalAlignment="Center"
+                       VerticalAlignment="Center"
+                       Foreground="#1AFF9C"
+                       IsHitTestVisible="False"/>
+        </ExperimentalAcrylicBorder>
+        <TransitioningContentControl Grid.Row="1" Content="{Binding NavigationStore.CurrentViewModel}"/>
+    </Grid>
+</Window>
