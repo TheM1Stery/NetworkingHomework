@@ -10,7 +10,7 @@
     <Grid RowDefinitions="3*, Auto">
         <TextBox Grid.Row="0" VerticalAlignment="Stretch" IsReadOnly="True"/>
         <StackPanel Grid.Row="1" Margin="5">
-            <TextBox HorizontalAlignment="Stretch" Watermark="Send message..."/>
+            <TextBox HorizontalAlignment="Stretch" Watermark="Write message..."/>
             <Button Content="Send message" VerticalAlignment="Center"/>
         </StackPanel>
     </Grid>
