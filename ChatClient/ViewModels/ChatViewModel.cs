@@ -1,4 +1,5 @@
-﻿using ChatClient.Services;
+﻿using System;
+using ChatClient.Services;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
@@ -29,19 +30,20 @@ public partial class ChatViewModel : BaseViewModel, IRecipient<ValueChangedMessa
         : base(navigationService)
     {
         _chatClient = chatClient;
+        ChatText = string.Empty;
         _chatClient.MessageReceived += m =>
         {
             ChatText += $"{m}\n";
         };
-        _chatClient.ReceiveMessageAsync();
     }
 
 
     [RelayCommand(CanExecute = nameof(CanSendMessage))]
     private void SendMessage()
     {
+        _chatClient.ReceiveMessageAsync();
         // _sentMessage will never be null because of CanSendMessage()
-        _chatClient.SendMessageAsync(_sentMessage!);
+        _chatClient.SendMessageAsync($"{_nickname}: {_sentMessage}");
     }
 
 

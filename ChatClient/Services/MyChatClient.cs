@@ -30,18 +30,18 @@ public class MyChatClient : IChatClient
         {
             await _client.ConnectAsync(_serverEndPoint, token);
         }
-
         try
         {
-            await Task.Run(() =>
+            await Task.Run( async () =>
             {
                 var buffer = new byte[1024];
                 while (true)
                 {
                     token.ThrowIfCancellationRequested();
-                    var bytes = _client.Receive(buffer, SocketFlags.None);
+                    await _client.ReceiveAsync(buffer, SocketFlags.None);
                     var message = Encoding.UTF8.GetString(buffer);
-                    MessageReceived?.Invoke(message[..bytes]);
+                    MessageReceived?.Invoke(message);
+                    Array.Clear(buffer);
                 }
             }, token);
         }

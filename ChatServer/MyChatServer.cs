@@ -54,14 +54,14 @@ public class MyChatServer : IDisposable
                                 var bytes = await currentClient.ReceiveAsync(buffer, SocketFlags.None);
                                 var message = Encoding.UTF8.GetString(buffer).Replace("\0", 
                                     string.Empty);
-                                MessageReceived?.Invoke(message[..bytes]);
+                                MessageReceived?.Invoke(message);
                                 foreach (var (key, client) in _clients.ToList())
                                 {
-                                    if (client.LocalEndPoint == null)
+                                    if (client.RemoteEndPoint == null)
                                         continue;
                                     try
                                     {
-                                        socket.SendTo(Encoding.UTF8.GetBytes(message), SocketFlags.None, client.LocalEndPoint);
+                                        socket.SendTo(Encoding.UTF8.GetBytes(message), SocketFlags.None, client.RemoteEndPoint);
                                     }
                                     catch (Exception e) when (e is SocketException or ObjectDisposedException)
                                     {
