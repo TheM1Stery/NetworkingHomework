@@ -1,6 +1,7 @@
 ﻿using System.Collections.Concurrent;
 using System.Net;
 using System.Net.Sockets;
+using System.Text;
 
 namespace ChatServer;
 
@@ -10,6 +11,8 @@ public class MyChatServer : IDisposable
     private readonly EndPoint _endPoint;
     private readonly ConcurrentDictionary<int, Socket> _clients;
     private int _clientCount;
+
+    public event Action<string>? MessageReceived;
     
     public event Action? Disconnected;
     
@@ -28,7 +31,7 @@ public class MyChatServer : IDisposable
         var concurrentQueue = new ConcurrentQueue<Socket>();
         try
         {
-            await Task.Run(async () =>
+            await Task.Factory.StartNew(async () =>
             {
                 while (true)
                 {
@@ -36,7 +39,7 @@ public class MyChatServer : IDisposable
                     var socket = await _server.AcceptAsync(cancellationToken);
                     concurrentQueue.Enqueue(socket);
                     _clients.TryAdd(_clientCount++, socket);
-                    _ = Task.Run( async () =>
+                    _ = Task.Factory.StartNew(async () =>
                     {
                         if (!concurrentQueue.TryDequeue(out var currentClient))
                         {
@@ -45,30 +48,31 @@ public class MyChatServer : IDisposable
                         using (currentClient)
                         {
                             var buffer = new byte[1024];
-                            while (true)
+                            while (currentClient.Connected)
                             {
                                 cancellationToken.ThrowIfCancellationRequested();
-                                await currentClient.ReceiveAsync(buffer, SocketFlags.None);
+                                var bytes = await currentClient.ReceiveAsync(buffer, SocketFlags.None);
+                                var message = Encoding.UTF8.GetString(buffer).Replace("\0", 
+                                    string.Empty);
+                                MessageReceived?.Invoke(message[..bytes]);
                                 foreach (var (key, client) in _clients.ToList())
                                 {
                                     if (client.LocalEndPoint == null)
                                         continue;
                                     try
                                     {
-                                        socket.SendTo(buffer, SocketFlags.None, client.LocalEndPoint);
+                                        socket.SendTo(Encoding.UTF8.GetBytes(message), SocketFlags.None, client.LocalEndPoint);
                                     }
-                                    catch (Exception e) when(e is SocketException or ObjectDisposedException)
+                                    catch (Exception e) when (e is SocketException or ObjectDisposedException)
                                     {
                                         _clients.TryRemove(key, out var removedClient);
-                                        removedClient?.Dispose();
                                     }
                                 }
                             }
                         }
-                        
-                    }, cancellationToken);
+                    }, cancellationToken, TaskCreationOptions.LongRunning, TaskScheduler.Default);
                 }
-            }, cancellationToken).ConfigureAwait(false);
+            }, cancellationToken, TaskCreationOptions.LongRunning, TaskScheduler.Default);
         }
         catch (OperationCanceledException)
         {

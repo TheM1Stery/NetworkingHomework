@@ -4,6 +4,7 @@ using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
 using ChatClient.Models;
+using ChatClient.Services;
 using ChatClient.ViewModels;
 using ChatClient.Views;
 using MVVMUtils;
@@ -53,6 +54,7 @@ public partial class App : Application
             });
             return factory;
         }, Lifestyle.Singleton);
+        container.Register<IChatClient>(() => new MyChatClient("127.0.0.1", 27001));
         return container;
     }
 

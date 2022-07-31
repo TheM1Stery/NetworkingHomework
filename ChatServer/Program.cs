@@ -1,4 +1,5 @@
-﻿using ChatServer;
+﻿using System.Text.RegularExpressions;
+using ChatServer;
 
 var resetEvent = new ManualResetEvent(false);
 
@@ -9,6 +10,7 @@ server.Disconnected += () =>
     Console.WriteLine("Served ended");
     resetEvent.Set();
 };
+server.MessageReceived += Console.WriteLine;
 
 var tokenSource = new CancellationTokenSource();
 

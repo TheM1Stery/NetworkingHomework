@@ -25,7 +25,8 @@ public partial class LoginViewModel : BaseViewModel
     [RelayCommand(CanExecute = nameof(CanEnter))]
     private void EnterChat()
     {
-        WeakReferenceMessenger.Default.Send(new ValueChangedMessage<string>(Nickname!));
+        // Nickname never will be null because of CanEnter()
+        WeakReferenceMessenger.Default.Send(new ValueChangedMessage<string>(Nickname!)); 
         Navigator.Navigate<ChatViewModel>();
     }
 }
