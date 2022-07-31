@@ -29,6 +29,7 @@ public partial class ChatViewModel : BaseViewModel, IRecipient<ValueChangedMessa
     public ChatViewModel(IChatClient chatClient, INavigationService<BaseViewModel> navigationService) 
         : base(navigationService)
     {
+        WeakReferenceMessenger.Default.Register(this);
         _chatClient = chatClient;
         ChatText = string.Empty;
         _chatClient.MessageReceived += m =>
@@ -41,7 +42,6 @@ public partial class ChatViewModel : BaseViewModel, IRecipient<ValueChangedMessa
     [RelayCommand(CanExecute = nameof(CanSendMessage))]
     private void SendMessage()
     {
-        _chatClient.ReceiveMessageAsync();
         // _sentMessage will never be null because of CanSendMessage()
         _chatClient.SendMessageAsync($"{_nickname}: {_sentMessage}");
     }
@@ -50,5 +50,6 @@ public partial class ChatViewModel : BaseViewModel, IRecipient<ValueChangedMessa
     public void Receive(ValueChangedMessage<string> message)
     {
        _nickname = message.Value;
+       _chatClient.ReceiveMessageAsync();
     }
 }

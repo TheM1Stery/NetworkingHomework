@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
@@ -54,7 +55,8 @@ public partial class App : Application
             });
             return factory;
         }, Lifestyle.Singleton);
-        container.Register<IChatClient>(() => new MyChatClient("127.0.0.1", 27001));
+        container.Register<IChatClient>(() => new MyChatClient("127.0.0.1", 27001, false));
+
         return container;
     }
 

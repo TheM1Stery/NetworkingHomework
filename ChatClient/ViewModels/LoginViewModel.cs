@@ -26,7 +26,7 @@ public partial class LoginViewModel : BaseViewModel
     private void EnterChat()
     {
         // Nickname never will be null because of CanEnter()
-        WeakReferenceMessenger.Default.Send(new ValueChangedMessage<string>(Nickname!)); 
         Navigator.Navigate<ChatViewModel>();
+        WeakReferenceMessenger.Default.Send(new ValueChangedMessage<string>(Nickname!)); 
     }
 }

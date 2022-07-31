@@ -11,17 +11,23 @@ public class MyChatClient : IChatClient
 {
     private readonly Socket _client;
 
-    private readonly IPEndPoint _serverEndPoint;
+    private readonly EndPoint _serverEndPoint;
 
     public event Action<string>? MessageReceived;
 
     public event Action? Disconnected;
     
     
-    public MyChatClient(string address, int port)
+    public MyChatClient(string address, int port, bool isDns)
     {
-        _client = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.IP);
-        _serverEndPoint = new IPEndPoint(IPAddress.Parse(address), port);
+        _client = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+        if (isDns == false)
+        {
+            _serverEndPoint = new IPEndPoint(IPAddress.Parse(address), port);
+            return;
+        }
+
+        _serverEndPoint = new DnsEndPoint(address, port);
     }
 
     public async Task ReceiveMessageAsync(CancellationToken token = default)

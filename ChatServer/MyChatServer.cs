@@ -18,7 +18,7 @@ public class MyChatServer : IDisposable
     
     public MyChatServer(string ipAddress, int port)
     {
-        _server = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.IP);
+        _server = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
         _endPoint = new IPEndPoint(IPAddress.Parse(ipAddress), port);
         _clients = new ConcurrentDictionary<int, Socket>();
     }
@@ -31,7 +31,7 @@ public class MyChatServer : IDisposable
         var concurrentQueue = new ConcurrentQueue<Socket>();
         try
         {
-            await Task.Factory.StartNew(async () =>
+            await Task.Run(async () =>
             {
                 while (true)
                 {
@@ -39,7 +39,7 @@ public class MyChatServer : IDisposable
                     var socket = await _server.AcceptAsync(cancellationToken);
                     concurrentQueue.Enqueue(socket);
                     _clients.TryAdd(_clientCount++, socket);
-                    _ = Task.Factory.StartNew(async () =>
+                    _ = Task.Run(async () =>
                     {
                         if (!concurrentQueue.TryDequeue(out var currentClient))
                         {
@@ -57,22 +57,21 @@ public class MyChatServer : IDisposable
                                 MessageReceived?.Invoke(message);
                                 foreach (var (key, client) in _clients.ToList())
                                 {
-                                    if (client.RemoteEndPoint == null)
-                                        continue;
                                     try
                                     {
-                                        socket.SendTo(Encoding.UTF8.GetBytes(message), SocketFlags.None, client.RemoteEndPoint);
+                                        client.Send(Encoding.UTF8.GetBytes(message));
                                     }
                                     catch (Exception e) when (e is SocketException or ObjectDisposedException)
                                     {
                                         _clients.TryRemove(key, out var removedClient);
                                     }
                                 }
+                                Array.Clear(buffer);
                             }
                         }
-                    }, cancellationToken, TaskCreationOptions.LongRunning, TaskScheduler.Default);
+                    }, cancellationToken);
                 }
-            }, cancellationToken, TaskCreationOptions.LongRunning, TaskScheduler.Default);
+            }, cancellationToken);
         }
         catch (OperationCanceledException)
         {
