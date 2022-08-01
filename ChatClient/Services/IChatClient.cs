@@ -9,6 +9,8 @@ public interface IChatClient
     public event Action<string>? MessageReceived;
 
     public event Action? Disconnected;
+
+    public event Action? ConnectionFailed;
     
     
     /// <summary>
@@ -18,4 +20,6 @@ public interface IChatClient
     public Task ReceiveMessageAsync(CancellationToken token = default);
 
     public Task SendMessageAsync(string message);
+    
+    public Task ConnectAsync();
 }

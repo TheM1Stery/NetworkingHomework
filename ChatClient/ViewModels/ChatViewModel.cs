@@ -1,9 +1,14 @@
 ﻿using System;
+using System.Threading.Tasks;
+using Avalonia.Controls;
 using ChatClient.Services;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using CommunityToolkit.Mvvm.Messaging.Messages;
+using MessageBox.Avalonia;
+using MessageBox.Avalonia.DTO;
+using MessageBox.Avalonia.Enums;
 using MVVMUtils;
 
 namespace ChatClient.ViewModels;
@@ -25,19 +30,16 @@ public partial class ChatViewModel : BaseViewModel, IRecipient<ValueChangedMessa
     {
         return !string.IsNullOrWhiteSpace(_sentMessage);
     }
-    
-    public ChatViewModel(IChatClient chatClient, INavigationService<BaseViewModel> navigationService) 
+
+    public ChatViewModel(IChatClient chatClient, INavigationService<BaseViewModel> navigationService)
         : base(navigationService)
     {
         WeakReferenceMessenger.Default.Register(this);
         _chatClient = chatClient;
         ChatText = string.Empty;
-        _chatClient.MessageReceived += m =>
-        {
-            ChatText += $"{m}\n";
-        };
+        _chatClient.MessageReceived += m => { ChatText += $"{m}\n"; };
+        
     }
-
 
     [RelayCommand(CanExecute = nameof(CanSendMessage))]
     private void SendMessage()

@@ -16,8 +16,9 @@ public class MyChatClient : IChatClient
     public event Action<string>? MessageReceived;
 
     public event Action? Disconnected;
-    
-    
+    public event Action? ConnectionFailed;
+
+
     public MyChatClient(string address, int port, bool isDns)
     {
         _client = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
@@ -26,7 +27,6 @@ public class MyChatClient : IChatClient
             _serverEndPoint = new IPEndPoint(IPAddress.Parse(address), port);
             return;
         }
-
         _serverEndPoint = new DnsEndPoint(address, port);
     }
 
@@ -34,7 +34,7 @@ public class MyChatClient : IChatClient
     {
         if (!_client.Connected)
         {
-            await _client.ConnectAsync(_serverEndPoint, token);
+            await _client.ConnectAsync(_serverEndPoint, token).ConfigureAwait(false);
         }
         try
         {
@@ -49,21 +49,32 @@ public class MyChatClient : IChatClient
                     MessageReceived?.Invoke(message);
                     Array.Clear(buffer);
                 }
-            }, token);
+            }, token).ConfigureAwait(false);
         }
         catch (OperationCanceledException)
         {
             Disconnected?.Invoke();
         }
-        
     }
     
     public async Task SendMessageAsync(string message)
     {
         if (!_client.Connected)
         {
-            await _client.ConnectAsync(_serverEndPoint);
+            await _client.ConnectAsync(_serverEndPoint).ConfigureAwait(false);
         }
-        await _client.SendAsync(Encoding.UTF8.GetBytes(message), SocketFlags.None);
+        await _client.SendAsync(Encoding.UTF8.GetBytes(message), SocketFlags.None).ConfigureAwait(false);
+    }
+
+    public async Task ConnectAsync()
+    {
+        try
+        {
+            await _client.ConnectAsync(_serverEndPoint).ConfigureAwait(false);
+        }
+        catch (Exception)
+        {
+            ConnectionFailed?.Invoke();
+        }
     }
 }
