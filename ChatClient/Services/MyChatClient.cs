@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace ChatClient.Services;
 
-public class MyChatClient : IChatClient
+public class MyChatClient : IChatClient, IDisposable
 {
     private readonly Socket _client;
 
@@ -83,5 +83,11 @@ public class MyChatClient : IChatClient
         {
             ConnectionFailed?.Invoke();
         }
+    }
+
+    public void Dispose()
+    {
+        _client.Dispose();
+        GC.SuppressFinalize(this);
     }
 }

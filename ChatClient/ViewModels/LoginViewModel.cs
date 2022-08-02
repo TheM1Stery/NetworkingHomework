@@ -1,5 +1,8 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
+using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Threading;
 using ChatClient.Services;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -24,27 +27,43 @@ public partial class LoginViewModel : BaseViewModel
 
     private bool _isValid = true;
     
+    private static int _counter = 0;
+
+    private async Task ShowMessageAndExit()
+    {
+        Window? window = null;
+        if (Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
+        {
+            window = desktop.MainWindow;
+        }
+
+        await MessageBoxManager.GetMessageBoxStandardWindow(new MessageBoxStandardParams
+            {
+                ContentTitle = "Server error",
+                ContentMessage = "Couldn't connect to the server. Closing the program",
+                ShowInCenter = true,
+                WindowStartupLocation = WindowStartupLocation.CenterScreen,
+                ButtonDefinitions = ButtonEnum.Ok,
+                Icon = Icon.Error
+            })
+            .ShowDialog(window);
+        _isValid = false;
+        Environment.Exit(1);
+    }
     
     public LoginViewModel(INavigationService<BaseViewModel> navigationService, IChatClient chatClient) : base(navigationService)
     {
         _chatClient = chatClient;
-        _chatClient.ConnectionFailed += () =>
-        {
-            Dispatcher.UIThread.Post(() =>
-            {
-                MessageBoxManager.GetMessageBoxStandardWindow(new MessageBoxStandardParams
-                {
-                    ContentTitle = "Server error",
-                    ContentMessage = "Couldn't connect to the server",
-                    ShowInCenter = true,
-                    WindowStartupLocation = WindowStartupLocation.CenterScreen,
-                    ButtonDefinitions = ButtonEnum.Ok,
-                    Icon = Icon.Error
-                }).Show();
-                _isValid = false;
-            });
-        };
+        if (_counter == 1)
+            _chatClient.ConnectionFailed += OnChatClientOnConnectionFailed;
+        _counter++;
     }
+
+    private async void OnChatClientOnConnectionFailed()
+    {
+        await Dispatcher.UIThread.InvokeAsync(ShowMessageAndExit);
+    }
+
 
     private bool CanEnter()
     {
@@ -58,6 +77,7 @@ public partial class LoginViewModel : BaseViewModel
 
         if (_isValid)
         {
+            _chatClient.ConnectionFailed -= OnChatClientOnConnectionFailed;
             Navigator.Navigate<ChatViewModel>();
             // Nickname never will be null because of CanEnter()
             WeakReferenceMessenger.Default.Send(new ValueChangedMessage<string>(Nickname!)); 

@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Text;
 using System.Threading.Tasks;
+using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Threading;
 using ChatClient.Services;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -42,6 +44,11 @@ public partial class ChatViewModel : BaseViewModel, IRecipient<ValueChangedMessa
 
     private static async Task ShowMessageAndExit()
     {
+        Window? window = null;
+        if (Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
+        {
+            window = desktop.MainWindow;
+        }
         await MessageBoxManager.GetMessageBoxStandardWindow(new MessageBoxStandardParams
         {
             ContentTitle = "Server error",
@@ -51,24 +58,30 @@ public partial class ChatViewModel : BaseViewModel, IRecipient<ValueChangedMessa
             WindowStartupLocation = WindowStartupLocation.CenterScreen,
             ButtonDefinitions = ButtonEnum.Ok,
             Icon = Icon.Error
-        }).Show();
+        }).ShowDialog(window);
         Environment.Exit(1);
     }
 
+    private static int _counter = 0;
+    
     public ChatViewModel(IChatClient chatClient, INavigationService<BaseViewModel> navigationService)
         : base(navigationService)
     {
         WeakReferenceMessenger.Default.Register(this);
         _chatClient = chatClient;
-        _chatClient.MessageReceived += m =>
+        if (_counter == 2)
         {
-            _chatText.Append($"{m}\n");
-            OnPropertyChanged(nameof(ChatText));
-        };
-        _chatClient.Disconnected += () =>
-        {
-            Dispatcher.UIThread.InvokeAsync(ShowMessageAndExit);
-        };
+            _chatClient.MessageReceived += m =>
+            {
+                _chatText.Append($"{m}\n");
+                OnPropertyChanged(nameof(ChatText));
+            };
+            _chatClient.Disconnected += () =>
+            {
+                Dispatcher.UIThread.InvokeAsync(ShowMessageAndExit);
+            };
+        }
+        _counter++;
     }
 
     [RelayCommand(CanExecute = nameof(CanSendMessage))]

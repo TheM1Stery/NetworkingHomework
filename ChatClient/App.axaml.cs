@@ -56,9 +56,10 @@ public partial class App : Application
             });
             return factory;
         }, Lifestyle.Singleton);
-        _container.Register<IChatClient>(() => new MyChatClient("127.0.0.1", 27001, false));
+        _container.Register<IChatClient>(() => new MyChatClient("127.0.0.1", 27001, false),
+            Lifestyle.Singleton);
         // _container.Register<IChatClient>(() => new MyChatClient("5.tcp.eu.ngrok.io", 13162, 
-        //     true));
+        //     true), Lifestyle.Singleton);
     }
 
 }
