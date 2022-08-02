@@ -74,7 +74,6 @@ public partial class ChatViewModel : BaseViewModel, IRecipient<ValueChangedMessa
     [RelayCommand(CanExecute = nameof(CanSendMessage))]
     private void SendMessage()
     {
-        // _sentMessage will never be null because of CanSendMessage()
         _chatClient.SendMessageAsync($"{_nickname}: {_sentMessage}");
         SentMessage = string.Empty;
     }

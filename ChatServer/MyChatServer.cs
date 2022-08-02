@@ -38,7 +38,8 @@ public class MyChatServer : IDisposable
                     cancellationToken.ThrowIfCancellationRequested();
                     var socket = await _server.AcceptAsync(cancellationToken);
                     concurrentQueue.Enqueue(socket);
-                    _clients.TryAdd(_clientCount++, socket);
+                    _clients.TryAdd(_clientCount, socket);
+                    _clientCount++;
                     _ = Task.Run(async () =>
                     {
                         if (!concurrentQueue.TryDequeue(out var currentClient))
@@ -52,8 +53,11 @@ public class MyChatServer : IDisposable
                             {
                                 cancellationToken.ThrowIfCancellationRequested();
                                 var bytes = await currentClient.ReceiveAsync(buffer, SocketFlags.None);
-                                var message = Encoding.UTF8.GetString(buffer).Replace("\0", 
-                                    string.Empty);
+                                // var message = Encoding.UTF8.GetString(buffer).Replace("\0", 
+                                //     string.Empty);
+                                var messageEnumerable =
+                                    Encoding.UTF8.GetString(buffer).TakeWhile(x => x != '\0');
+                                var message = string.Concat(messageEnumerable);
                                 MessageReceived?.Invoke(message);
                                 foreach (var (key, client) in _clients.ToList())
                                 {
