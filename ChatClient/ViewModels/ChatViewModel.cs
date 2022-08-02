@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Text;
 using System.Threading.Tasks;
 using Avalonia.Controls;
+using Avalonia.Threading;
 using ChatClient.Services;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -23,12 +25,34 @@ public partial class ChatViewModel : BaseViewModel, IRecipient<ValueChangedMessa
     [NotifyCanExecuteChangedFor(nameof(SendMessageCommand))]
     private string? _sentMessage;
 
-    [ObservableProperty]
-    private string? _chatText;
+    // [ObservableProperty]
+    // private string? _chatText;
+
+    private readonly StringBuilder _chatText = new();
+
+
+    public string ChatText => _chatText.ToString();
+
 
     private bool CanSendMessage()
     {
         return !string.IsNullOrWhiteSpace(_sentMessage);
+    }
+
+
+    private static async Task ShowMessageAndExit()
+    {
+        await MessageBoxManager.GetMessageBoxStandardWindow(new MessageBoxStandardParams
+        {
+            ContentTitle = "Server error",
+            ContentMessage = "Couldn't connect to the server. Please contact the admin to restart the server or " +
+                             "check your internet connection. The program will be closed",
+            ShowInCenter = true,
+            WindowStartupLocation = WindowStartupLocation.CenterScreen,
+            ButtonDefinitions = ButtonEnum.Ok,
+            Icon = Icon.Error
+        }).Show();
+        Environment.Exit(1);
     }
 
     public ChatViewModel(IChatClient chatClient, INavigationService<BaseViewModel> navigationService)
@@ -36,9 +60,15 @@ public partial class ChatViewModel : BaseViewModel, IRecipient<ValueChangedMessa
     {
         WeakReferenceMessenger.Default.Register(this);
         _chatClient = chatClient;
-        ChatText = string.Empty;
-        _chatClient.MessageReceived += m => { ChatText += $"{m}\n"; };
-        
+        _chatClient.MessageReceived += m =>
+        {
+            _chatText.Append($"{m}\n");
+            OnPropertyChanged(nameof(ChatText));
+        };
+        _chatClient.Disconnected += () =>
+        {
+            Dispatcher.UIThread.InvokeAsync(ShowMessageAndExit);
+        };
     }
 
     [RelayCommand(CanExecute = nameof(CanSendMessage))]
@@ -46,6 +76,7 @@ public partial class ChatViewModel : BaseViewModel, IRecipient<ValueChangedMessa
     {
         // _sentMessage will never be null because of CanSendMessage()
         _chatClient.SendMessageAsync($"{_nickname}: {_sentMessage}");
+        SentMessage = string.Empty;
     }
 
 

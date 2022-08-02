@@ -35,7 +35,7 @@ public partial class LoginViewModel : BaseViewModel
                 MessageBoxManager.GetMessageBoxStandardWindow(new MessageBoxStandardParams
                 {
                     ContentTitle = "Server error",
-                    ContentMessage = "Couldn't connect to the database",
+                    ContentMessage = "Couldn't connect to the server",
                     ShowInCenter = true,
                     WindowStartupLocation = WindowStartupLocation.CenterScreen,
                     ButtonDefinitions = ButtonEnum.Ok,

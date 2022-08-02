@@ -59,11 +59,18 @@ public class MyChatClient : IChatClient
     
     public async Task SendMessageAsync(string message)
     {
-        if (!_client.Connected)
+        try
         {
-            await _client.ConnectAsync(_serverEndPoint).ConfigureAwait(false);
+            if (!_client.Connected)
+            {
+                await _client.ConnectAsync(_serverEndPoint).ConfigureAwait(false);
+            }
+            await _client.SendAsync(Encoding.UTF8.GetBytes(message), SocketFlags.None).ConfigureAwait(false);
         }
-        await _client.SendAsync(Encoding.UTF8.GetBytes(message), SocketFlags.None).ConfigureAwait(false);
+        catch (Exception)
+        {
+            Disconnected?.Invoke();
+        }
     }
 
     public async Task ConnectAsync()

@@ -20,44 +20,45 @@ public partial class App : Application
         AvaloniaXamlLoader.Load(this);
     }
 
+    private Container? _container;
+
     public override void OnFrameworkInitializationCompleted()
     {
-        var container = Bootstrap();
+        Bootstrap();
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
-            desktop.MainWindow = container.GetInstance<MainView>();
+            desktop.MainWindow = _container?.GetInstance<MainView>();
         }
-
         base.OnFrameworkInitializationCompleted();
     }
 
     private static Func<BaseViewModel> CreateProducer<T>(Container container)
         where T : BaseViewModel => Lifestyle.Transient.CreateProducer<BaseViewModel, T>(container).GetInstance;
 
-    private Container Bootstrap()
+    private void Bootstrap()
     {
-        var container = new Container();
-        container.Register<MainViewModel>(Lifestyle.Singleton);
-        container.Register<MainView>(Lifestyle.Singleton);
-        container.Register<INavigationStore<BaseViewModel>, NavigationStore>(Lifestyle.Singleton);
-        container.Register<INavigationService<BaseViewModel>, NavigationService<BaseViewModel>>(Lifestyle.Singleton);
-        container.RegisterInitializer<MainView>(x =>
+        _container = new Container();
+        _container.Register<MainViewModel>(Lifestyle.Singleton);
+        _container.Register<MainView>(Lifestyle.Singleton);
+        _container.Register<INavigationStore<BaseViewModel>, NavigationStore>(Lifestyle.Singleton);
+        _container.Register<INavigationService<BaseViewModel>, NavigationService<BaseViewModel>>(Lifestyle.Singleton);
+        _container.RegisterInitializer<MainView>(x =>
         {
-            x.DataContext = container.GetInstance<MainViewModel>();
+            x.DataContext = _container.GetInstance<MainViewModel>();
         });
-        container.Collection.Register<BaseViewModel>(typeof(BaseViewModel).Assembly);
-        container.Register<IViewModelFactory<BaseViewModel>>(() =>
+        _container.Collection.Register<BaseViewModel>(typeof(BaseViewModel).Assembly);
+        _container.Register<IViewModelFactory<BaseViewModel>>(() =>
         {
             var factory = new ViewModelFactory<BaseViewModel>(new Dictionary<Type, Func<BaseViewModel>>()
             {
-                [typeof(LoginViewModel)] = CreateProducer<LoginViewModel>(container),
-                [typeof(ChatViewModel)] = CreateProducer<ChatViewModel>(container)
+                [typeof(LoginViewModel)] = CreateProducer<LoginViewModel>(_container),
+                [typeof(ChatViewModel)] = CreateProducer<ChatViewModel>(_container)
             });
             return factory;
         }, Lifestyle.Singleton);
-        container.Register<IChatClient>(() => new MyChatClient("127.0.0.1", 27001, false));
-
-        return container;
+        _container.Register<IChatClient>(() => new MyChatClient("127.0.0.1", 27001, false));
+        // _container.Register<IChatClient>(() => new MyChatClient("5.tcp.eu.ngrok.io", 13162, 
+        //     true));
     }
 
 }
