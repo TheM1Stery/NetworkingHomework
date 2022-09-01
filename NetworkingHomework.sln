@@ -8,6 +8,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MVVMUtils", "MVVMUtils\MVVM
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CurrencyConverterServer", "CurrencyConverterServer\CurrencyConverterServer.csproj", "{EB1664C6-6243-4F68-B79F-9A7A9EB25D51}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MultiCastServer", "MultiCastServer\MultiCastServer.csproj", "{795767E2-DBC5-4905-B643-6A3674171E9E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -30,5 +32,9 @@ Global
 		{EB1664C6-6243-4F68-B79F-9A7A9EB25D51}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EB1664C6-6243-4F68-B79F-9A7A9EB25D51}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EB1664C6-6243-4F68-B79F-9A7A9EB25D51}.Release|Any CPU.Build.0 = Release|Any CPU
+		{795767E2-DBC5-4905-B643-6A3674171E9E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{795767E2-DBC5-4905-B643-6A3674171E9E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{795767E2-DBC5-4905-B643-6A3674171E9E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{795767E2-DBC5-4905-B643-6A3674171E9E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
