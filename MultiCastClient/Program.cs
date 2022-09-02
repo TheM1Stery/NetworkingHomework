@@ -3,12 +3,20 @@
 using System.Net;
 using System.Net.Sockets;
 
-var client = new TcpClient();
+using var client = new TcpClient();
+
+var time = TimeOnly.FromDateTime(DateTime.Now);
+
 
 var connected = false;
 Console.WriteLine("Waiting for the server...");
 while (!connected)
 {
+    if ((TimeOnly.FromDateTime(DateTime.Now) - time).Seconds > 15)
+    {
+        Console.WriteLine("Couldn't connect to the server. Closing the program...");
+        return;
+    }
     try
     {
         await client.ConnectAsync(IPEndPoint.Parse("127.0.0.1:34111"));
@@ -35,9 +43,9 @@ await Task.Run(() =>
             Console.WriteLine($"Message sent by the server: {message}");
         }
     }
-    catch (Exception e)
+    catch (Exception)
     {
-        Console.WriteLine("Server ended. Press anything to close the program...");
+        Console.WriteLine("Server closed connection. Press anything to close the program...");
         Console.ReadLine();
     }
     

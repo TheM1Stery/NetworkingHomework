@@ -35,8 +35,9 @@ public class MultiCastSenderServer
 
     private void ClientHandlerOnSendFailed(Client obj)
     {
-        _clients.Remove(obj);
         obj.SendFailed -= ClientHandlerOnSendFailed;
+        obj.Dispose();
+        _clients.Remove(obj);
     }
 
     public async Task Send<T>(T obj, CancellationToken token = default)

@@ -4,13 +4,13 @@ using System.Text.Json;
 
 namespace MultiCastServer;
 
-public class Client
+public class Client : IDisposable
 {
     private readonly TcpClient _client;
 
-    private StreamWriter _writer;
+    private readonly StreamWriter _writer;
 
-    private StreamReader _reader;
+    private readonly StreamReader _reader;
 
 
     public event Action<Client>? SendFailed;
@@ -29,7 +29,7 @@ public class Client
     {
         try
         {
-            await _writer.WriteLineAsync(JsonSerializer.Serialize(obj, new JsonSerializerOptions()
+            await _writer.WriteLineAsync(JsonSerializer.Serialize(obj, new JsonSerializerOptions
             {
                 Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping
             }));
@@ -38,5 +38,13 @@ public class Client
         {
             SendFailed?.Invoke(this);
         }
+    }
+
+    public void Dispose()
+    {
+        GC.SuppressFinalize(this);
+        _client.Dispose();
+        _writer.Dispose();
+        _reader.Dispose();
     }
 }
