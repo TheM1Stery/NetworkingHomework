@@ -27,11 +27,20 @@ var stream = new StreamReader(client.GetStream());
 
 await Task.Run(() =>
 {
-    while (true)
+    try
     {
-        var message = stream.ReadLine();
-        Console.WriteLine($"Message sent by the server: {message}");
+        while (true)
+        {
+            var message = stream.ReadLine();
+            Console.WriteLine($"Message sent by the server: {message}");
+        }
     }
+    catch (Exception e)
+    {
+        Console.WriteLine("Server ended. Press anything to close the program...");
+        Console.ReadLine();
+    }
+    
 });
 
 
