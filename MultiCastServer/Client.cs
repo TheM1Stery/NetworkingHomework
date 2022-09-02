@@ -1,23 +1,22 @@
 ﻿using System.Net.Sockets;
 using System.Text.Encodings.Web;
 using System.Text.Json;
-using MediatR;
 
 namespace MultiCastServer;
 
 public class Client
 {
-    private readonly IMediator _mediator;
     private readonly TcpClient _client;
 
     private StreamWriter _writer;
 
     private StreamReader _reader;
 
+
+    public event Action<Client> SendFailed;
     
-    public Client(IMediator mediator,TcpClient client)
+    public Client(TcpClient client)
     {
-        _mediator = mediator;
         _client = client;
         _writer = new StreamWriter(_client.GetStream())
         {
@@ -38,10 +37,7 @@ public class Client
         }
         catch (Exception)
         {
-            await _mediator.Publish(new SocketErrorNotification()
-            {
-                Client = this
-            });
+            SendFailed?.Invoke(this);
         }
     }
 }

@@ -1,12 +1,10 @@
 ﻿using System.Net;
 using System.Net.Sockets;
-using MediatR;
 
 namespace MultiCastServer;
 
-public class MultiCastSenderServer : INotificationHandler<SocketErrorNotification>
+public class MultiCastSenderServer
 {
-    private readonly IMediator _mediator;
     // private readonly object _lock = new();
     
     private TcpListener _server;
@@ -14,9 +12,8 @@ public class MultiCastSenderServer : INotificationHandler<SocketErrorNotificatio
     private readonly List<Client> _clients = new();
     
     
-    public MultiCastSenderServer(IMediator mediator,IPEndPoint endPoint)
+    public MultiCastSenderServer(IPEndPoint endPoint)
     {
-        _mediator = mediator;
         _server = new TcpListener(endPoint);
     }
     
@@ -29,21 +26,22 @@ public class MultiCastSenderServer : INotificationHandler<SocketErrorNotificatio
             while (true)
             {
                 var client = await _server.AcceptTcpClientAsync(token);
-                var clientHandler = new Client(_mediator,client);
+                var clientHandler = new Client(client);
+                clientHandler.SendFailed += ClientHandlerOnSendFailed;
                 _clients.Add(clientHandler);
             }
         },token).ConfigureAwait(false);
     }
-    
+
+    private void ClientHandlerOnSendFailed(Client obj)
+    {
+        _clients.Remove(obj);
+        obj.SendFailed -= ClientHandlerOnSendFailed;
+    }
+
     public async Task Send<T>(T obj, CancellationToken token = default)
     {
         var list = _clients.Select(client => client.Send(obj)).ToList();
         await Task.WhenAll(list).ConfigureAwait(false);
-    }
-
-    public Task Handle(SocketErrorNotification notification, CancellationToken cancellationToken)
-    {
-        _clients.Remove(notification.Client);
-        return Task.CompletedTask;
     }
 }
