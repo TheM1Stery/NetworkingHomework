@@ -31,7 +31,6 @@ public class Client
         {
             await _writer.WriteLineAsync(JsonSerializer.Serialize(obj, new JsonSerializerOptions()
             {
-                WriteIndented = true,
                 Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping
             }));
         }
