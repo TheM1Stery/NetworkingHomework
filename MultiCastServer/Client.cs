@@ -13,7 +13,7 @@ public class Client
     private StreamReader _reader;
 
 
-    public event Action<Client> SendFailed;
+    public event Action<Client>? SendFailed;
     
     public Client(TcpClient client)
     {
