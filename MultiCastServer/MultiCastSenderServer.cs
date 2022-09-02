@@ -41,7 +41,7 @@ public class MultiCastSenderServer
 
     public async Task Send<T>(T obj, CancellationToken token = default)
     {
-        var list = _clients.Select(client => client.Send(obj)).ToList();
+        var list = _clients.ToList().Select(client => client.Send(obj)).ToList();
         await Task.WhenAll(list).ConfigureAwait(false);
     }
 }
