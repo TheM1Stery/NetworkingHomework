@@ -6,11 +6,13 @@ namespace CurrencyConverterServer;
 
 public class MyCurrencyConverterServer
 {
+    private readonly ICurrencyDbClient _dbClient;
     private readonly ILogger _logger;
     private TcpListener _server;
     
-    public MyCurrencyConverterServer(IPEndPoint endPoint, ILogger logger)
+    public MyCurrencyConverterServer(IPEndPoint endPoint, ICurrencyDbClient dbClient,ILogger logger)
     {
+        _dbClient = dbClient;
         _logger = logger;
         _server = new TcpListener(endPoint);
     }
@@ -23,7 +25,7 @@ public class MyCurrencyConverterServer
             while (!token.IsCancellationRequested)
             {
                 var tcpClient = await _server.AcceptTcpClientAsync(token);
-                var client = new Client(tcpClient, _logger);
+                var client = new Client(tcpClient, _dbClient, _logger);
                 var ip = tcpClient.Client.RemoteEndPoint as IPEndPoint;
                 _logger.Information("{ip} connected to the server", ip?.Address);
                 var task = client.Handle(token);
