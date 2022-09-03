@@ -1,15 +1,18 @@
 ﻿using System.Net;
 using System.Net.Sockets;
+using Serilog;
 
 namespace CurrencyConverterServer;
 
 public class MyCurrencyConverterServer
 {
+    private readonly ILogger _logger;
     private TcpListener _server;
     
-    public MyCurrencyConverterServer(string ip, int port)
+    public MyCurrencyConverterServer(IPEndPoint endPoint, ILogger logger)
     {
-        _server = new TcpListener(IPAddress.Parse(ip), port);
+        _logger = logger;
+        _server = new TcpListener(endPoint);
     }
     
     public async Task Start(CancellationToken token = default)
@@ -20,11 +23,14 @@ public class MyCurrencyConverterServer
             while (!token.IsCancellationRequested)
             {
                 var tcpClient = await _server.AcceptTcpClientAsync(token);
-                var client = new Client(tcpClient, token);
-                var task = client.Handle();
+                var client = new Client(tcpClient, _logger);
+                var ip = tcpClient.Client.RemoteEndPoint as IPEndPoint;
+                _logger.Information("{ip} connected to the server", ip?.Address);
+                var task = client.Handle(token);
                 _ = task.ContinueWith(t =>
                 {
-                    
+                    _logger.Information("{ip} left the server", ip?.Address);
+                    client.Dispose();
                 }, token);
             }
         }, token);
