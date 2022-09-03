@@ -27,9 +27,9 @@ public class Client : IDisposable
 
     public async Task Handle(CancellationToken token = default)
     {
-        while (_client.Connected)
+        while (_client.Connected || !token.IsCancellationRequested)
         {
-            var json = await _reader.ReadLineAsync().ConfigureAwait(false); // getting the response from the client\
+            var json = await _reader.ReadLineAsync().ConfigureAwait(false); // getting the response from the client
             if (json is null)
                 return;
             await using var memStream = new MemoryStream(Encoding.UTF8.GetBytes(json));
@@ -51,5 +51,6 @@ public class Client : IDisposable
         _client.Dispose();
         _reader.Dispose();
         _writer.Dispose();
+        GC.SuppressFinalize(this);
     }
 }
