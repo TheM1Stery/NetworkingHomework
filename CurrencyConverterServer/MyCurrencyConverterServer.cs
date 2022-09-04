@@ -27,11 +27,11 @@ public class MyCurrencyConverterServer
                 var tcpClient = await _server.AcceptTcpClientAsync(token);
                 var client = new Client(tcpClient, _dbClient, _logger);
                 var ip = tcpClient.Client.RemoteEndPoint as IPEndPoint;
-                _logger.Information("{ip} connected to the server", ip?.Address);
+                _logger.Information("{ip}:{port} connected to the server", ip?.Address, ip?.Port);
                 var task = client.Handle(token);
                 _ = task.ContinueWith(t =>
                 {
-                    _logger.Information("{ip} left the server", ip?.Address);
+                    _logger.Information("{ip}:{port} left the server", ip?.Address, ip?.Port);
                     client.Dispose();
                 }, token);
             }

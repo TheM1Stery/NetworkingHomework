@@ -1,4 +1,5 @@
-﻿using System.Net.Sockets;
+﻿using System.Net;
+using System.Net.Sockets;
 using System.Text;
 using System.Text.Json;
 using Serilog;
@@ -39,6 +40,9 @@ public class Client : IDisposable
                 return;
             var firstCurrency = await _dbClient.GetCurrency(request.From);
             var secondCurrency = await _dbClient.GetCurrency(request.To);
+            var ip = _client.Client.RemoteEndPoint as IPEndPoint;
+            _logger.Information("{ip}:{port} requested conversion from {firstCurrency} to {secondCurrency}", 
+                ip?.Address, ip?.Port, firstCurrency?.Name, secondCurrency?.Name);
             var conversion = await _dbClient.GetCurrencyConversion(firstCurrency!, secondCurrency!);
             await _writer.WriteLineAsync(
                 JsonSerializer.Serialize(new ConversionResult(conversion!.Cost * request.MoneyToConvert)));

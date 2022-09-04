@@ -12,6 +12,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MultiCastServer", "MultiCas
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MultiCastClient", "MultiCastClient\MultiCastClient.csproj", "{851DD374-AD9B-42A1-85DA-E04946823D0E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CurrencyConverterClient", "CurrencyConverterClient\CurrencyConverterClient.csproj", "{A35983BE-78C0-47F0-9175-9FA901D852D7}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -42,5 +44,9 @@ Global
 		{851DD374-AD9B-42A1-85DA-E04946823D0E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{851DD374-AD9B-42A1-85DA-E04946823D0E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{851DD374-AD9B-42A1-85DA-E04946823D0E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A35983BE-78C0-47F0-9175-9FA901D852D7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A35983BE-78C0-47F0-9175-9FA901D852D7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A35983BE-78C0-47F0-9175-9FA901D852D7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A35983BE-78C0-47F0-9175-9FA901D852D7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
