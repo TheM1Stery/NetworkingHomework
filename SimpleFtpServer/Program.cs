@@ -1,3 +1,12 @@
-﻿// See https://aka.ms/new-console-template for more information
+﻿using System.Net;
+using SimpleFtpServer;
 
-Console.WriteLine("Hello, World!");
+var server = new Server(IPEndPoint.Parse("127.0.0.1:13377"));
+
+var cts = new CancellationTokenSource();
+
+server.Start(cts.Token).FireAndForget();
+
+Console.WriteLine("Press anything to close the server..");
+Console.ReadLine();
+cts.Cancel();
