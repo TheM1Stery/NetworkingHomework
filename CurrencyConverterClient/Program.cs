@@ -25,41 +25,74 @@ await using var writer = new StreamWriter(client.GetStream())
 };
 var showMenu = true;
 using var reader = new StreamReader(client.GetStream());
-var set = new HashSet<string>() { "azn", "eur", "usd", "uah" };
-while (true)
+try
 {
-    if (showMenu)
+    var status = await reader.ReadLineAsync();
+    if (status == "Server is loaded")
     {
-        Console.WriteLine("Example: azn to uah 2");
-        Console.WriteLine("AZN(azn)\nEUR(eur)\nUSD(usd)\nUAH(uah)\nClose the program(close)");
-    }
-    Console.Write("> ");
-    var str = Console.ReadLine();
-    if (str == "close")
-    {
+        Console.WriteLine($"{status}. Please try again later. Closing the program");
+        Console.ReadLine();
         return;
     }
-    var arguments = str?.Split(' ');
-    if (arguments is null)
-    {
-        showMenu = false;
-        continue;
-    }
-    if (!ValidateArguments(arguments, set))
-    {
-        showMenu = false;
-        continue;
-    }
-    showMenu = true;
-    var request = new ConversionRequest(arguments[0].ToUpper(), arguments[2].ToUpper(), 
-        decimal.Parse(arguments[3]));
-    await HandleRequest(writer, reader, request);
 }
+catch (Exception)
+{
+    Console.WriteLine("Server disconnected.. Closing the program");
+    await Task.Delay(3000);
+}
+
+
+var set = new HashSet<string>() { "azn", "eur", "usd", "uah" };
+try
+{
+    while (true)
+    {
+        if (showMenu)
+        {
+            Console.WriteLine("Example: azn to uah 2");
+            Console.WriteLine("AZN(azn)\nEUR(eur)\nUSD(usd)\nUAH(uah)\nClose the program(close)");
+        }
+        Console.Write("> ");
+        var str = Console.ReadLine();
+        if (str == "close")
+        {
+            return;
+        }
+        var arguments = str?.Split(' ');
+        if (arguments is null)
+        {
+            showMenu = false;
+            continue;
+        }
+        if (!ValidateArguments(arguments, set))
+        {
+            showMenu = false;
+            continue;
+        }
+        showMenu = true;
+        var request = new ConversionRequest(arguments[0].ToUpper(), arguments[2].ToUpper(), 
+            decimal.Parse(arguments[3]));
+        await HandleRequest(writer, reader, request);
+    }
+}
+catch (Exception)
+{
+    Console.WriteLine("Server disconnected.. Closing the program");
+    await Task.Delay(3000);
+    return;
+}
+
 
 async Task HandleRequest(TextWriter streamWriter, TextReader streamReader, ConversionRequest request)
 {
     await streamWriter.WriteLineAsync(JsonSerializer.Serialize(request));
     var json = await streamReader.ReadLineAsync();
+    if (json == "Request limit exceeded. Closing the connection")
+    {
+        Console.WriteLine("Request limit exceeded. Closing the connection");
+        await Task.Delay(3000);
+        throw new InvalidOperationException();
+    }
     var memStream = new MemoryStream(Encoding.UTF8.GetBytes(json!));
     var conversionResult = await JsonSerializer.DeserializeAsync<ConversionResult>(memStream);
     Console.Clear();

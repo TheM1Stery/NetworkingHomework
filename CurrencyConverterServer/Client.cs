@@ -14,6 +14,8 @@ public class Client : IDisposable
     private readonly StreamReader _reader;
     private readonly StreamWriter _writer;
 
+
+
     public Client(TcpClient client,ICurrencyDbClient dbClient, ILogger logger)
     {
         _client = client;
@@ -28,6 +30,9 @@ public class Client : IDisposable
 
     public async Task Handle(CancellationToken token = default)
     {
+        var requestCount = 0;
+        if (_client.Connected)
+            await _writer.WriteLineAsync("Successful connection");
         while (_client.Connected || !token.IsCancellationRequested)
         {
             var json = await _reader.ReadLineAsync().ConfigureAwait(false); // getting the response from the client
@@ -41,13 +46,18 @@ public class Client : IDisposable
             var firstCurrency = await _dbClient.GetCurrency(request.From);
             var secondCurrency = await _dbClient.GetCurrency(request.To);
             var ip = _client.Client.RemoteEndPoint as IPEndPoint;
-            _logger.Information("{ip}:{port} requested conversion from {firstCurrency} to {secondCurrency}", 
+            _logger.Information("{Ip}:{Port} requested conversion from {FirstCurrency} to {SecondCurrency}", 
                 ip?.Address, ip?.Port, firstCurrency?.Name, secondCurrency?.Name);
             var conversion = await _dbClient.GetCurrencyConversion(firstCurrency!, secondCurrency!);
+            if (requestCount == 10)
+            {
+                await _writer.WriteLineAsync("Request limit exceeded. Closing the connection");
+                break;
+            }
             await _writer.WriteLineAsync(
                 JsonSerializer.Serialize(new ConversionResult(conversion!.Cost * request.MoneyToConvert)));
+            requestCount++;
         }
-        
     }
 
     public void Dispose()
