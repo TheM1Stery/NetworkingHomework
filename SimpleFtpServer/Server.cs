@@ -5,10 +5,12 @@ namespace SimpleFtpServer;
 
 public class Server
 {
-    private TcpListener _listener;
+    private readonly string _filesPath;
+    private readonly TcpListener _listener;
 
-    public Server(IPEndPoint endPoint)
+    public Server(IPEndPoint endPoint, string filesPath)
     {
+        _filesPath = filesPath;
         _listener = new TcpListener(endPoint);
     }
 
@@ -29,11 +31,9 @@ public class Server
 
     private async Task HandleClient(TcpClient client, CancellationToken token = default)
     {
-        await using var writer = new StreamWriter(client.GetStream());
-        using var reader = new StreamReader(client.GetStream());
+        var stream = client.GetStream();
         while (client.Connected || token.IsCancellationRequested)
         {
-            var path = await reader.ReadLineAsync();
             
         }
     }

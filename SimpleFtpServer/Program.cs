@@ -1,7 +1,7 @@
 ﻿using System.Net;
 using SimpleFtpServer;
 
-var server = new Server(IPEndPoint.Parse("127.0.0.1:13377"));
+var server = new Server(IPEndPoint.Parse("127.0.0.1:13377"), "FtpDirectory");
 
 var cts = new CancellationTokenSource();
 
