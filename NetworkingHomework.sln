@@ -20,6 +20,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RemoteMouseControlServer", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RemoteMouseControlClient", "RemoteMouseControlClient\RemoteMouseControlClient.csproj", "{D8A74E1F-531E-46DC-A632-3368E655C8B1}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PcKillerApp", "PcKillerApp\PcKillerApp.csproj", "{79C6FDF7-D1F8-42DE-B8DA-7CE80A5241E5}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -66,5 +68,9 @@ Global
 		{D8A74E1F-531E-46DC-A632-3368E655C8B1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D8A74E1F-531E-46DC-A632-3368E655C8B1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D8A74E1F-531E-46DC-A632-3368E655C8B1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{79C6FDF7-D1F8-42DE-B8DA-7CE80A5241E5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{79C6FDF7-D1F8-42DE-B8DA-7CE80A5241E5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{79C6FDF7-D1F8-42DE-B8DA-7CE80A5241E5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{79C6FDF7-D1F8-42DE-B8DA-7CE80A5241E5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
