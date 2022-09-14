@@ -37,6 +37,7 @@ public class Server
         var streamReader = new StreamReader(stream);
         IFtpCommand sendAllFileInfoCommand = new GetAllFileInfoCommand();
         IFtpCommand sendFileCommand = new GetFileCommand();
+        IFtpCommand uploadCommand = new UploadCommand();
         while (client.Connected || token.IsCancellationRequested)
         {
             var str = await streamReader.ReadLineAsync();
@@ -45,10 +46,15 @@ public class Server
                 await sendAllFileInfoCommand.HandleAsync(stream, token: token);
                 continue;
             }
+            if (str != null && str.Contains("upload"))
+            {
+                var uploadParams = str.Split(' ');
+                await uploadCommand.HandleAsync(stream, uploadParams[1], token: token);
+            }
             if (str == null || !str.Contains("get")) 
                 continue;
-            var strings = str.Split(' ');
-            await sendFileCommand.HandleAsync(stream, strings[1], token);
+            var getParameters = str.Split(' ');
+            await sendFileCommand.HandleAsync(stream, getParameters[1], token);
         }
     }
 }

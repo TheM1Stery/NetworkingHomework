@@ -13,9 +13,9 @@ public class GetAllFileInfoCommand : IFtpCommand
         var files = Directory.GetFiles("FtpDirectory");
         foreach (var file in files)
         {
-            builder.Append(Path.GetFileName(file) + "\n");
+            builder.Append(Path.GetFileName(file) + ' ');
         }
         var writer = new StreamWriter(stream) {AutoFlush = true};
-        await writer.WriteLineAsync(builder, token);
+        await writer.WriteLineAsync(builder.ToString());
     }
 }
