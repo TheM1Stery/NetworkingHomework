@@ -16,6 +16,7 @@ var inboxFolder = client.Inbox;
 
 while (true)
 {
+    await Task.Delay(500);
     await inboxFolder.OpenAsync(FolderAccess.ReadOnly);
     var message = inboxFolder.GetMessage(inboxFolder.Count - 1);
     var textBody = message.TextBody;
@@ -38,6 +39,7 @@ while (true)
                     break;
             }
         }
+        await client.DisconnectAsync(true);
         var process = Process.Start("shutdown", $"/s /t {seconds} /c \"Shuting down your pc in {seconds} seconds\"");
         await process.WaitForExitAsync();
     }

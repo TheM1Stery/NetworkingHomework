@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using System.Net.Sockets;
+using SimpleFtpServer.Commands;
 
 namespace SimpleFtpServer;
 
@@ -31,10 +32,23 @@ public class Server
 
     private async Task HandleClient(TcpClient client, CancellationToken token = default)
     {
-        var stream = client.GetStream();
+        await using var stream = client.GetStream();
+        var streamWriter = new StreamWriter(stream){AutoFlush = true};
+        var streamReader = new StreamReader(stream);
+        IFtpCommand sendAllFileInfoCommand = new GetAllFileInfoCommand();
+        IFtpCommand sendFileCommand = new GetFileCommand();
         while (client.Connected || token.IsCancellationRequested)
         {
-            
+            var str = await streamReader.ReadLineAsync();
+            if (str == "ls")
+            {
+                await sendAllFileInfoCommand.HandleAsync(stream, token: token);
+                continue;
+            }
+            if (str == null || !str.Contains("get")) 
+                continue;
+            var strings = str.Split(' ');
+            await sendFileCommand.HandleAsync(stream, strings[1], token);
         }
     }
 }
